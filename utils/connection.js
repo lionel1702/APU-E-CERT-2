@@ -7,7 +7,7 @@ const certification_artifact = require("../build/contracts/Certification.json");
 
 const CertificationInstance = contract(certification_artifact);
 
-const connectWeb3 = function() {
+const connectWeb3 = function () {
   const self = this;
   if (process.env.NODE_ENV === "development") {
     self.web3 = new Web3(
@@ -22,7 +22,7 @@ const connectWeb3 = function() {
   CertificationInstance.setProvider(self.web3.currentProvider);
   // hack for web3@1.0.0 support for localhost testrpc, see https://github.com/trufflesuite/truffle-contract/issues/56#issuecomment-331084530
   if (typeof CertificationInstance.currentProvider.sendAsync !== "function") {
-    CertificationInstance.currentProvider.sendAsync = function() {
+    CertificationInstance.currentProvider.sendAsync = function () {
       return CertificationInstance.currentProvider.send.apply(
         CertificationInstance.currentProvider,
         arguments
@@ -30,32 +30,32 @@ const connectWeb3 = function() {
     };
   }
 
-  process.env.NODE_ENV === "development"
-    ? log.Print("Current host: " + self.web3.currentProvider.host)
-    : log.Print(
-        "Current host: " +
-          self.web3.currentProvider.engine._providers[2].provider.host
-      );
+  // process.env.NODE_ENV === "development"
+  //   ? log.Print("Current host: " + self.web3.currentProvider.host)
+  //   : log.Print(
+  //       "Current host: " +
+  //         self.web3.currentProvider.engine._providers[2].provider.host
+  //     );
 };
 
-const getAccounts = function() {
+const getAccounts = function () {
   const self = this;
 
   return self.web3.eth.getAccounts();
 };
 
-const getCertificateData = function(certificateId) {
+const getCertificateData = function (certificateId) {
   const self = this;
 
   // Bootstrap the CertificationInstance abstraction for Use.
   CertificationInstance.setProvider(self.web3.currentProvider);
 
   return CertificationInstance.deployed()
-    .then(ins => ins.getData(certificateId))
-    .catch(err => Promise.reject("No certificate found with the input id"));
+    .then((ins) => ins.getData(certificateId))
+    .catch((err) => Promise.reject("No certificate found with the input id"));
 };
 
-const generateCertificate = function(
+const generateCertificate = function (
   id,
   candidateName,
   orgName,
@@ -67,10 +67,10 @@ const generateCertificate = function(
   // Bootstrap the CertificationInstance abstraction for Use.
   CertificationInstance.setProvider(self.web3.currentProvider);
 
-  return self.getAccounts().then(answer => {
+  return self.getAccounts().then((answer) => {
     let accountAddress = answer[0];
     return CertificationInstance.deployed()
-      .then(instance =>
+      .then((instance) =>
         instance.generateCertificate(
           id,
           candidateName,
@@ -80,7 +80,7 @@ const generateCertificate = function(
           { from: accountAddress.toLowerCase(), gas: 200000 }
         )
       )
-      .catch(err => {
+      .catch((err) => {
         log.Error(err);
         return Promise.reject(err.toString());
       });
@@ -91,5 +91,5 @@ module.exports = {
   connectWeb3,
   getAccounts,
   getCertificateData,
-  generateCertificate
+  generateCertificate,
 };
